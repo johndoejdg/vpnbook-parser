@@ -7,6 +7,9 @@ import (
 	"github.com/PuerkitoBio/goquery"
 	"fmt"
 	"io"
+	"github.com/kardianos/osext"
+	"log"
+	"path"
 )
 
 func main() {
@@ -14,7 +17,13 @@ func main() {
 		Path string `json:"credPath"`
 	}
 
-	data, err1 := ioutil.ReadFile("./parser-config.json")
+	folderPath, err5 := osext.ExecutableFolder()
+	if err5 != nil {
+		log.Fatal(err5)
+	}
+	configFile:= path.Join(folderPath, "parser-config.json")
+
+	data, err1 := ioutil.ReadFile(configFile)
 	if err1 != nil {
 		panic(err1)
 	}
@@ -23,7 +32,6 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-
 
 	filename := cred.Path
 	file, err := os.OpenFile(filename, os.O_WRONLY | os.O_TRUNC, os.FileMode(0666))
@@ -37,7 +45,6 @@ func main() {
 	}
 	username := doc.Find(".disc li:nth-child(7) strong").First().Text()
 	password := doc.Find(".disc li:nth-child(8) strong").First().Text()
-
 
 	n, err := io.WriteString(file, username+"\r\n"+password)
 	if err != nil {
